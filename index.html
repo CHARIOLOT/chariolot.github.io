@@ -1,33 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enter security code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon: #19ff7a;
+    --neon-soft: rgba(25, 255, 122, 0.16);
+    --neon-line: rgba(25, 255, 122, 0.55);
+    --text: #d9ffe8;
+    --error: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: linear-gradient(160deg, #021a0c 0%, #03361b 55%, #01120a 100%);
+    color: var(--text);
+    font-family: "Share Tech Mono", "Courier New", monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  #rain { position: fixed; inset: 0; width: 100%; height: 100%; opacity: 0.35; z-index: 0; }
+  main { position: relative; z-index: 1; width: 100%; max-width: 400px; text-align: center; }
+  .screen[hidden], [hidden] { display: none !important; }
+
+  .badge {
+    width: 168px; height: 168px;
+    margin: 0 auto 28px;
+    border: 3px solid var(--neon);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: rgba(1, 18, 10, 0.55);
+    box-shadow: 0 0 24px var(--neon-soft), inset 0 0 24px var(--neon-soft);
+  }
+  .badge svg { width: 84px; height: 84px; stroke: var(--neon); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+  h1 { font-size: 1.45rem; letter-spacing: 0.04em; margin: 0 0 14px; font-weight: 400; color: var(--neon); text-shadow: 0 0 10px var(--neon-soft); }
+  p.sub { margin: 0 0 28px; font-size: 1.05rem; line-height: 1.4; }
+
+  input {
+    width: 100%;
+    font: inherit; font-size: 1.15rem;
+    padding: 16px 18px;
+    background: rgba(25, 255, 122, 0.1);
+    color: var(--text);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    outline: none;
+  }
+  input::placeholder { color: rgba(217, 255, 232, 0.7); }
+  input:focus-visible { border-color: var(--neon); box-shadow: 0 0 0 3px var(--neon-soft); }
+  input.wrong { border-color: var(--error); animation: shake .35s; }
+
+  .error { color: var(--error); margin: 10px 0 0; min-height: 1.3em; font-size: 1rem; }
+
+  button.confirm {
+    width: 100%;
+    margin-top: 14px;
+    font: inherit; font-size: 1.15rem;
+    padding: 15px;
+    color: var(--neon);
+    background: transparent;
+    border: 1px solid var(--neon-line);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button.confirm:hover { background: var(--neon-soft); }
+  button.confirm:focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; }
+  button.confirm:active { transform: translateY(1px); }
+
+  button.link {
+    margin-top: 22px;
+    font: inherit; font-size: 1rem;
+    color: var(--text);
+    background: none; border: 0;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 6px;
+  }
+  button.link:focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; }
+
+  .hint { margin-top: 14px; color: var(--neon); font-size: 1.3rem; text-shadow: 0 0 10px var(--neon-soft); }
+
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @media (prefers-reduced-motion: reduce) { input.wrong { animation: none; } }
+</style>
 </head>
 <body>
-  <img src="pic.jpg" width="150"/>
-  <h1>THE DARK AURA <body style="background:#ce51ffc4;"</h1>
-  <br><br>
-  <div>
-<form>
-  <label>Username</label>
-  <br>
-  <input placeholder="Enter Username"required/>
-  <br><br>
-  <label>Password</label>
-  <br>
-  <input type="password"
-    placeholder="Enter Password"required/>
-  <br>
-  <input type="reset"/>
-  <button>Enter</button>
-</form>   
-   </div>
-           <br><br>
-        <hr>
-     <h6>By-Rio</h6>
-        <hr>
- 
+<canvas id="rain" aria-hidden="true"></canvas>
+
+<main>
+  <section id="gate" class="screen">
+    <div class="badge" aria-hidden="true">
+      <svg viewBox="0 0 48 48"><path d="M14 21v-6a10 10 0 0 1 20 0v6"/><rect x="8" y="21" width="32" height="22" rx="3"/><circle cx="24" cy="31" r="1.6"/><path d="M24 33v4"/></svg>
+    </div>
+    <h1>CODE REQUIRED</h1>
+    <p class="sub">Enter the code to continue.</p>
+    <form id="form" autocomplete="off" novalidate>
+      <input id="code" type="text" placeholder="Security code" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Security code" aria-describedby="err">
+      <p id="err" class="error" role="alert"></p>
+      <button type="submit" class="confirm">Confirm</button>
+      <button type="button" id="help" class="link" hidden>What a code?</button>
+    </form>
+    <p id="hint" class="hint" hidden>Coming soon</p>
+  </section>
+
+  <section id="home" class="screen" hidden>
+    <div class="badge" aria-hidden="true">
+      <svg viewBox="0 0 48 48"><path d="M14 21v-6a10 10 0 0 1 19-4"/><rect x="8" y="21" width="32" height="22" rx="3"/><circle cx="24" cy="31" r="1.6"/><path d="M24 33v4"/></svg>
+    </div>
+    <h1>COMING SOON</h1>
+    <p class="sub">Halaman ini masih dalam pengerjaan.</p>
+  </section>
+</main>
+
+<script>
+  // Kode akses
+  var SECRET = "16mrt";
+
+  var form = document.getElementById("form");
+  var input = document.getElementById("code");
+  var err = document.getElementById("err");
+  var help = document.getElementById("help");
+  var hint = document.getElementById("hint");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (input.value.trim().toLowerCase() === SECRET) {
+      document.getElementById("gate").hidden = true;
+      document.getElementById("home").hidden = false;
+      document.title = "Coming soon";
+    } else {
+      err.textContent = "Wrong code. Try again.";
+      help.hidden = false;
+      input.classList.remove("wrong");
+      void input.offsetWidth;
+      input.classList.add("wrong");
+      input.select();
+    }
+  });
+
+  help.addEventListener("click", function () { hint.hidden = !hint.hidden; });
+
+  // Efek hujan kode hijau
+  (function () {
+    var c = document.getElementById("rain");
+    var ctx = c.getContext("2d");
+    var size = 16, cols, drops, chars = "01アイウエオカキクケコサシスセソ<>/{}#$%";
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function setup() {
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+      cols = Math.ceil(c.width / size);
+      drops = [];
+      for (var i = 0; i < cols; i++) drops.push(Math.random() * c.height / size);
+      ctx.fillStyle = "#01120a";
+      ctx.fillRect(0, 0, c.width, c.height);
+    }
+
+    function draw() {
+      ctx.fillStyle = "rgba(1, 18, 10, 0.12)";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.fillStyle = "#19ff7a";
+      ctx.font = size + "px monospace";
+      for (var i = 0; i < cols; i++) {
+        var ch = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(ch, i * size, drops[i] * size);
+        if (drops[i] * size > c.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+
+    setup();
+    window.addEventListener("resize", setup);
+    if (still) { for (var k = 0; k < 40; k++) draw(); }
+    else { setInterval(draw, 60); }
+  })();
+</script>
 </body>
 </html>
